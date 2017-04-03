@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IoT Map</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Javascript -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="js/leaflet-heat.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <style type="text/css">
+        html,body,.col-md-12,.row {
+            height:100%;
+        }
+
+        .row > div {
+            height:100%;
+        }
+
+        /* to make columns visible */
+        .row .col-sm-9 {
+        background-color:#eee;
+        }
+        .row .col-sm-3 {
+        background-color:#ddd;
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-sm-9" id="map"></div>
+            <div class="col-sm-3" id="table-container"></div>
+        </div>
+    </div>
+
+
+
+
+<!--<div class="container">
+	<div class="row">
+
+        <input type="button" class="btn btn-lg btn-primary btn-block" id="add-device" value="Add device"/>
+        <div class="col-md-12">
+        <h4>Device Management</h4>
+        <div class="table-responsive">
+
+
+              <table id="device-table" class="table table-bordred table-striped">
+
+                   <thead>
+                   <th>Device ID</th>
+                    <th>Latitude</th>
+                     <th>Longitude</th>
+                     <th>Temperature</th>
+                      <th>Start</th>
+                      <th>Pause</th>
+
+                       <th>Delete</th>
+                   </thead>
+    <tbody>
+
+    </tbody>
+
+</table>-->
+<!--<div class="container">
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-9" id="mapi">Sidebar content</div>
+		<div class="col-md-3" id="table-containerr">Sidebar content</div>
+	</div
+</div>
+</div>-->
+
+    <script>
+        var devices = {};
+
+        // Create websocket
+        //var socket = io.connect(window.location.hostname);
+	    socket = io.connect("localhost:3000");
+        socket.on('device-update', function (data) {
+            console.log(data);
+            deviceUpdate(data);
+        });
+
+        // Create map and add OSM base layer
+    	var map = new L.Map('map');
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+        var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 13, attribution: osmAttrib});
+
+    	// Set view and add layer
+    	map.setView(new L.LatLng(20.659658, -103.348927),13);
+    	map.addLayer(osm);
+
+        // Define heatlayer and temp points
+        var tPoints = [];
+            /*[20.706887, -103.381330, 2.0],
+            [20.711769, -103.344801, 3.0]
+        ];*/
+
+        var heatmapOptions = {
+            minOpacity: 0.4,
+            maxZoom: 13,
+            max: 4.0,
+            radius: 70,
+            blur: 15,
+            gradient: {0.0: 'blue', 0.5: 'lime', 1.0: 'red'}
+        };
+
+        var heatmap = L.heatLayer(tPoints, heatmapOptions).addTo(map), draw = true;
+
+        // Add points dynamically
+        map.on({
+            click: function (e) {
+                    heatmap.addLatLng(e.latlng, 4.0);
+                }
+        })
+
+        function deviceUpdate(deviceData){
+            // Device temperature should be divided by 10 according to the heatmap max values
+            var temp = deviceData.temperature / 10;
+            console.log(temp);
+
+            // If ID doesn't exists, create it, otherwise, update and redraw
+            if (!(deviceData.deviceId in devices)){
+                devices[deviceData.deviceId] = deviceData;
+                tPoints.push([deviceData.lat, deviceData.lng, temp]);
+
+            } else {
+                devices[deviceData.deviceId].temperature = deviceData.temperature;
+                var devicePosition = tPoints.findIndex(checkIfPointExists, deviceData);
+
+                // Update data in position
+                tPoints[devicePosition] = [deviceData.lat, deviceData.lng, temp]
+
+            }
+            heatmap.redraw();
+        }
+
+        function checkIfPointExists(point, deviceData) {
+            // this keyword accesses deviceData
+            return point[0] == this.lat && point[1] == this.lng;
+        }
+    </script>
+
+</body>
+</html>
