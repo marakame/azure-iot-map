@@ -38,48 +38,11 @@
 
     <div class="col-md-12">
         <div class="row">
-            <div class="col-sm-9" id="map"></div>
-            <div class="col-sm-3" id="table-container"></div>
+            <div class="col-sm-12" id="map"></div>
+            <!--TODO: Include table with alphanumeric values-->
+            <!--<div class="col-sm-3" id="table-container"></div>-->
         </div>
     </div>
-
-
-
-
-<!--<div class="container">
-	<div class="row">
-
-        <input type="button" class="btn btn-lg btn-primary btn-block" id="add-device" value="Add device"/>
-        <div class="col-md-12">
-        <h4>Device Management</h4>
-        <div class="table-responsive">
-
-
-              <table id="device-table" class="table table-bordred table-striped">
-
-                   <thead>
-                   <th>Device ID</th>
-                    <th>Latitude</th>
-                     <th>Longitude</th>
-                     <th>Temperature</th>
-                      <th>Start</th>
-                      <th>Pause</th>
-
-                       <th>Delete</th>
-                   </thead>
-    <tbody>
-
-    </tbody>
-
-</table>-->
-<!--<div class="container">
-<div class="col-md-12">
-	<div class="row">
-		<div class="col-md-9" id="mapi">Sidebar content</div>
-		<div class="col-md-3" id="table-containerr">Sidebar content</div>
-	</div
-</div>
-</div>-->
 
     <script>
         var devices = {};
@@ -118,13 +81,6 @@
         };
 
         var heatmap = L.heatLayer(tPoints, heatmapOptions).addTo(map), draw = true;
-
-        // Add points dynamically
-        map.on({
-            click: function (e) {
-                    heatmap.addLatLng(e.latlng, 4.0);
-                }
-        })
 
         function deviceUpdate(deviceData){
             // Device temperature should be divided by 10 according to the heatmap max values
