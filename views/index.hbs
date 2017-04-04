@@ -99,7 +99,7 @@
         var osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 13, attribution: osmAttrib});
 
     	// Set view and add layer
-    	map.setView(new L.LatLng(20.659658, -103.348927),13);
+    	map.setView(new L.LatLng(20.659658, -103.348927),12);
     	map.addLayer(osm);
 
         // Define heatlayer and temp points
@@ -109,12 +109,12 @@
         ];*/
 
         var heatmapOptions = {
-            minOpacity: 0.4,
+            minOpacity: 0.2,
             maxZoom: 13,
-            max: 4.0,
-            radius: 70,
-            blur: 15,
-            gradient: {0.0: 'blue', 0.5: 'lime', 1.0: 'red'}
+            max: 5.0,
+            radius: 50,
+            blur: 10,
+            gradient: {0.0: 'blue', 0.5: 'yellow', 1.0: 'red'}
         };
 
         var heatmap = L.heatLayer(tPoints, heatmapOptions).addTo(map), draw = true;
@@ -129,7 +129,6 @@
         function deviceUpdate(deviceData){
             // Device temperature should be divided by 10 according to the heatmap max values
             var temp = deviceData.temperature / 10;
-            console.log(temp);
 
             // If ID doesn't exists, create it, otherwise, update and redraw
             if (!(deviceData.deviceId in devices)){
