@@ -48,8 +48,8 @@
         var devices = {};
 
         // Create websocket
-        //var socket = io.connect(window.location.hostname);
-	    socket = io.connect("localhost:3000");
+        var socket = io.connect(window.location.hostname);
+	    //socket = io.connect("localhost:3000");
         socket.on('device-update', function (data) {
             console.log(data);
             deviceUpdate(data);
@@ -81,6 +81,7 @@
         };
 
         var heatmap = L.heatLayer(tPoints, heatmapOptions).addTo(map), draw = true;
+
 
         function deviceUpdate(deviceData){
             // Device temperature should be divided by 10 according to the heatmap max values
