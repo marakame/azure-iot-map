@@ -50,6 +50,8 @@
         // Create websocket
         var socket = io.connect(window.location.hostname);
 	    //socket = io.connect("localhost:3000");
+
+        // When receiving a message from the server call the corresponding function
         socket.on('device-update', function (data) {
             console.log(data);
             deviceUpdate(data);
@@ -65,11 +67,8 @@
     	map.setView(new L.LatLng(20.659658, -103.348927),12);
     	map.addLayer(osm);
 
-        // Define heatlayer and temp points
+        // Define heatlayer
         var tPoints = [];
-            /*[20.706887, -103.381330, 2.0],
-            [20.711769, -103.344801, 3.0]
-        ];*/
 
         var heatmapOptions = {
             minOpacity: 0.2,
@@ -103,6 +102,8 @@
             heatmap.redraw();
         }
 
+        // Function to check if a given pair of lat long coordinates already exists
+        // in the points array
         function checkIfPointExists(point, deviceData) {
             // this keyword accesses deviceData
             return point[0] == this.lat && point[1] == this.lng;
